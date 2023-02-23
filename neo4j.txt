@@ -1,0 +1,87 @@
+// clear data
+MATCH (n)
+DETACH DELETE n;
+
+// load Users nodes
+LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/brutovsky/Application_CSV/main/user.csv' AS row
+CREATE (user:User)
+SET user = row;
+
+// Load Address nodes
+LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/brutovsky/Application_CSV/main/address.csv' AS row
+MERGE (address:Address {id:row.id, building: row.building, street: row.street})
+MERGE (city:City {name:row.city});
+// Create relationships
+LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/brutovsky/Application_CSV/main/address.csv' AS row
+MATCH (address:Address {id: row.id})
+MATCH (city:City {name: row.city})
+MERGE (address)-[:IN]->(city);
+
+// Load Establishment nodes
+LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/brutovsky/Application_CSV/main/establishment.csv' AS row
+MERGE (establishment:Establishment {id:row.id, name: row.name});
+// Create relationships
+LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/brutovsky/Application_CSV/main/establishment.csv' AS row
+MATCH (establishment:Establishment {id: row.id})
+MATCH (address:Address {id: row.address_id})
+MERGE (establishment)-[:LOCATED_AT]->(address);
+
+// Load EduEstablishment nodes
+LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/brutovsky/Application_CSV/main/educationalestablishment.csv' AS row
+MERGE (establishment:EduEstablishment {id:row.id, name: row.name});
+// Create relationships
+LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/brutovsky/Application_CSV/main/educationalestablishment.csv' AS row
+MATCH (establishment:EduEstablishment {id: row.id})
+MATCH (address:Address {id: row.address_id})
+MERGE (establishment)-[:LOCATED_AT]->(address);
+
+// Load Application nodes
+LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/brutovsky/Application_CSV/main/application.csv' AS row
+MERGE (application:Application {id:row.id, body: row.body, email: row.email, phone: row.phone});
+// Create relationships
+LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/brutovsky/Application_CSV/main/application.csv' AS row
+MATCH (application:Application {id: row.id})
+MATCH (address:Address {id: row.home_address_id})
+MERGE (application)-[:HOME_ADDRESS_AT]->(address);
+// Create relationships
+LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/brutovsky/Application_CSV/main/application.csv' AS row
+MATCH (application:Application {id: row.id})
+MATCH (user:User {id: row.user_id})
+MERGE (user)-[:HAS_APPLICATION]->(application);
+
+// Load Hobby nodes
+LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/brutovsky/Application_CSV/main/hobby.csv' AS row
+MERGE (hobby:Hobby {id:row.id, name: row.name});
+// Create relationships
+LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/brutovsky/Application_CSV/main/hobby.csv' AS row
+MATCH (hobby:Hobby {id: row.id})
+MATCH (application:Application {id: row.application_id})
+MERGE (application)-[:HAS_HOBBY]->(hobby);
+
+// Load EducationInfo nodes
+LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/brutovsky/Application_CSV/main/educationinfo.csv' AS row
+MERGE (educationInfo:EducationInfo {id:row.id, start_date: row.start_date, end_date: row.end_date, level: row.level, program: row.program});
+// Create relationships
+LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/brutovsky/Application_CSV/main/educationinfo.csv' AS row
+MATCH (educationInfo:EducationInfo {id: row.id})
+MATCH (application:Application {id: row.application_id})
+MERGE (application)-[:HAS_EDUCATION]->(educationInfo);
+// Create relationships
+LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/brutovsky/Application_CSV/main/educationinfo.csv' AS row
+MATCH (educationInfo:EducationInfo {id: row.id})
+MATCH (eduEstablishment:EduEstablishment {id: row.establishment_id})
+MERGE (educationInfo)-[:STUDY_AT]->(eduEstablishment);
+
+// Load EducationInfo nodes
+LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/brutovsky/Application_CSV/main/educationinfo.csv' AS row
+MERGE (educationInfo:EducationInfo {id:row.id, start_date: row.start_date, end_date: row.end_date, level: row.level, program: row.program});
+// Create relationships
+LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/brutovsky/Application_CSV/main/educationinfo.csv' AS row
+MATCH (educationInfo:EducationInfo {id: row.id})
+MATCH (application:Application {id: row.application_id})
+MERGE (application)-[:HAS_EDUCATION]->(educationInfo);
+// Create relationships
+LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/brutovsky/Application_CSV/main/educationinfo.csv' AS row
+MATCH (educationInfo:EducationInfo {id: row.id})
+MATCH (eduEstablishment:EduEstablishment {id: row.establishment_id})
+MERGE (educationInfo)-[:STUDY_AT]->(eduEstablishment);
